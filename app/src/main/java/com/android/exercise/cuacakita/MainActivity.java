@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements WeatherCallbacks 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_activity_weather);
+        setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -166,17 +166,17 @@ public class MainActivity extends AppCompatActivity implements WeatherCallbacks 
         updateLocation();
         //startTime = SystemClock.elapsedRealtime();
         //Log.d("Timer","Start : "+SystemClock.elapsedRealtime());
-        final Runnable updateTime = new Runnable() {
-            int time=0;
-            @Override
-            public void run() {
-                time+=300000;
-                lastUpdateText.setText("Terakhir diperbarui " + time + " detik lalu");
-                Log.d("Timer", "" + currentTime);
-                timeHandler.postDelayed(this,300000);
-            }
-        };
-        timeHandler.postDelayed(updateTime,300000);
+//        final Runnable updateTime = new Runnable() {
+//            int time=0;
+//            @Override
+//            public void run() {
+//                time+=300000;
+//                lastUpdateText.setText("Terakhir diperbarui " + time + " detik lalu");
+//                Log.d("Timer", "" + currentTime);
+//                timeHandler.postDelayed(this,300000);
+//            }
+//        };
+//        timeHandler.postDelayed(updateTime,300000);
     }
 
 
@@ -252,7 +252,7 @@ public class MainActivity extends AppCompatActivity implements WeatherCallbacks 
             @Override
             public void run() {
                 locationManager.removeUpdates(locationListener);
-                Toast.makeText(ActivityWeather.this,"Gagal Memeperbarui Cuaca",Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this,"Gagal Memeperbarui Cuaca",Toast.LENGTH_SHORT).show();
                 isReadyToUpdate = false;
                 rotationAnimation.cancel();
             }
