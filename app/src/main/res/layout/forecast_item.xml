@@ -2,36 +2,33 @@
 <!--android:background="#056107"-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:weightSum="10">
         <LinearLayout
             android:id="@+id/layoutday1"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="2"
+            android:layout_height="180dp"
             android:orientation="vertical"
-            android:padding="7dp"
-            android:background="#1b9a1e"
             android:weightSum="10">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Sunday"
-                android:textColor="#fff"
+                android:layout_marginTop="5dp"
                 android:layout_gravity="center_horizontal"
                 android:textSize="15sp"
                 android:maxLines="1"
                 android:layout_weight="1"
                 android:id="@+id/day"/>
             <ImageView
-                android:layout_width="match_parent"
+                android:layout_width="40dp"
                 android:layout_height="0dp"
                 android:layout_weight="7"
                 android:src="@drawable/test2"
                 android:id="@+id/weatherIconFragment"
-                android:scaleType="fitXY"
+                android:scaleType="fitCenter"
                 android:layout_gravity="center"/>
             <TextView
-                android:textColor="#fff"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -39,9 +36,8 @@
                 android:maxLines="1"
                 android:textSize="15sp"
                 android:id="@+id/weatherFragment"
-                android:layout_gravity="center_horizontal"/>
+                android:layout_gravity="center"/>
             <TextView
-                android:textColor="#fff"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

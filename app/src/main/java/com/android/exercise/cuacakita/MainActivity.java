@@ -2,6 +2,7 @@ package com.android.exercise.cuacakita;
 
 import android.Manifest;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -23,6 +24,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -56,14 +58,16 @@ public class MainActivity extends AppCompatActivity implements WeatherCallbacks 
     TextView lastUpdateText, temperatureText, currentWeatherText, cityName, dateText;
     ImageView updateIcon, weatherIcon;
     String[] days = new String[]{"Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"};
-
+    public static int width;
+    public static int height;
+    public static Context mainContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+       // Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
 
         fragmentTransaction = getFragmentManager().beginTransaction();
         fg = FragmentForecast.newInstance("weather");
@@ -79,6 +83,14 @@ public class MainActivity extends AppCompatActivity implements WeatherCallbacks 
         currentWeatherText = (TextView) findViewById(R.id.currentWeather);
         weatherIcon = (ImageView) findViewById(R.id.currentWeatherIcon);
 
+        mainContext = getApplicationContext();
+
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+        width = metrics.widthPixels;
+        height = metrics.heightPixels;
+        
         update();
 
     }
@@ -90,8 +102,10 @@ public class MainActivity extends AppCompatActivity implements WeatherCallbacks 
         String condition = strValue.getString("condition");
         String temp = strValue.getString("temp");
         int index = strValue.getInt("date");
+        int bmp = strValue.getInt("icon");
 
         currentWeatherText.setText(condition + "\n(" + desc + ")");
+        weatherIcon.setImageResource(bmp);
         Log.d("URL", "Temp get : " + temp);
         temperatureText.setText("" + temp + (char) 0x00B0);
         String date = getDate(index);
@@ -120,6 +134,12 @@ public class MainActivity extends AppCompatActivity implements WeatherCallbacks 
         currentWeatherText.setText(weather.currentCondition[0].getCondition() + "\n(" + weather.currentCondition[0].getDescr() + ")");
         Log.d("URL", "Temp get : " + weather.temperature[0].getTemp());
         temperatureText.setText("" + (weather.temperature[0].getTemp()) + (char) 0x00B0);
+
+        String icon = "i" + weather.currentCondition[0].getIcon();
+        int bmp = getResources().getIdentifier("drawable/"+icon,"drawable",getPackageName());
+
+        weatherIcon.setImageResource(bmp);
+
 
         String dateNow = getDate(0);
         dateText.setText(dateNow);
@@ -288,10 +308,10 @@ public class MainActivity extends AppCompatActivity implements WeatherCallbacks 
 
                 weather = JSONWeatherParser.getWeather(data);
 
-                for(int i=0;i<5;i++) {
-                    weather.iconData[i] = ((new WeatherHttpClient()).getImage(weather.currentCondition[i].getIcon()));
-                    Log.d("Iconnnn","icon "+i+" : "+weather.iconData[i].length);
-                }
+//                for(int i=0;i<5;i++) {
+//                    weather.iconData[i] = ((new WeatherHttpClient()).getImage(weather.currentCondition[i].getIcon()));
+//                    Log.d("Iconnnn","icon "+i+" : "+weather.iconData[i].length);
+//                }
             }
             catch (JSONException e){
                 e.printStackTrace();

@@ -1,6 +1,7 @@
 package com.android.exercise.cuacakita;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import com.android.exercise.cuacakita.weather_model.Location;
 import com.android.exercise.cuacakita.weather_model.Weather;
@@ -15,8 +16,13 @@ import org.json.JSONObject;
 public class JSONWeatherParser {
     public static Weather getWeather(String data) throws JSONException {
         Weather weather = new Weather();
-
-        JSONObject jObj = new JSONObject(data);
+        JSONObject jObj = null;
+        try {
+            jObj = new JSONObject(data);
+        }
+        catch (NullPointerException ex){
+            Toast.makeText(MainActivity.mainContext, "Gagal mendapatkan data", Toast.LENGTH_SHORT).show();
+        }
 
         Location loc = new Location();
 
