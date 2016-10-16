@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.app.Fragment;
@@ -35,6 +37,7 @@ public class FragmentForecast extends Fragment implements WeatherFragmentCallbac
     Calendar calendar;
     String[] days = new String[]{"Ming","Sen","Sel","Rabu","Kam","Jum","Sab"};
     int fragmentHeight;
+    
     @Override
     public void onMessageFromActivityToFragment(Weather weather) {
         this.weather = weather;
@@ -85,11 +88,19 @@ public class FragmentForecast extends Fragment implements WeatherFragmentCallbac
         bundle.putInt("date",index);
         mainActivity.onMessageFromFragmentToActivity("fragment_forecast",bundle);
 
-        gridView.getChildAt(index).setBackgroundColor(Color.parseColor("#056107"));
+        GradientDrawable gradientDrawable = new GradientDrawable();
+        gradientDrawable.setColor(0xFFFFFFFF);
+        gradientDrawable.setStroke(5,0x98706A6A);
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN){
+            gridView.getChildAt(index).setBackgroundDrawable(gradientDrawable);
+        }
+        else {
+            gridView.getChildAt(index).setBackground(gradientDrawable);
+        }
 
         for (int i=0;i<5;i++){
             if(i!=index)
-                gridView.getChildAt(i).setBackgroundColor(Color.parseColor("#fff"));
+                gridView.getChildAt(i).setBackgroundColor(Color.parseColor("#FFFFFFFF"));
         }
     }
 
@@ -147,6 +158,8 @@ public class FragmentForecast extends Fragment implements WeatherFragmentCallbac
                 day = days[(calendar.get(Calendar.DAY_OF_WEEK)-1)+position-7];
                 ex.printStackTrace();
             }
+
+
             holder.day.setText(day);
 
             //Update weather condition, temperature, and icon in forecast gridview item
@@ -161,7 +174,7 @@ public class FragmentForecast extends Fragment implements WeatherFragmentCallbac
             holder.currentWeather.setText(weather.currentCondition[position].getCondition());
             holder.temperature.setText(weather.temperature[position].getTemp() + (char) 0x00B0);
             //view.setLayoutParams(new GridView.LayoutParams(500,500));
-                //linearLayout.setPadding(8,8,8,8);
+            //linearLayout.setPadding(8,8,8,8);
             view.setMinimumWidth(MainActivity.width/5);
             Log.d("width",""+MainActivity.width/5);
 

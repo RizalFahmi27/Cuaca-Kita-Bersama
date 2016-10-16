@@ -1,5 +1,6 @@
 package com.android.exercise.cuacakita;
 
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -19,50 +20,46 @@ public class JSONWeatherParser {
         JSONObject jObj = null;
         try {
             jObj = new JSONObject(data);
-        }
-        catch (NullPointerException ex){
-            Toast.makeText(MainActivity.mainContext, "Gagal mendapatkan data", Toast.LENGTH_SHORT).show();
-        }
 
-        Location loc = new Location();
+            Location loc = new Location();
 
 
-        JSONObject cityObject = getObject("city",jObj);
-        loc.setCountry(getString("country",cityObject));
-        loc.setCity(getString("name",cityObject));
-        JSONObject coordObj = getObject("coord",cityObject);
-        loc.setLatitude(getFloat("lat",coordObj));
-        loc.setLongitude(getFloat("lon",coordObj));
+            JSONObject cityObject = getObject("city", jObj);
+            loc.setCountry(getString("country", cityObject));
+            loc.setCity(getString("name", cityObject));
+            JSONObject coordObj = getObject("coord", cityObject);
+            loc.setLatitude(getFloat("lat", coordObj));
+            loc.setLongitude(getFloat("lon", coordObj));
 
-        weather.location = loc;
+            weather.location = loc;
 
-        JSONArray listArray = jObj.getJSONArray("list");
+            JSONArray listArray = jObj.getJSONArray("list");
 
-        for(int i=0;i<5;i++){
-            JSONObject JSONList = listArray.getJSONObject(i);
-            JSONArray jArrWeather = JSONList.getJSONArray("weather");
-            JSONObject JSONWeather = jArrWeather.getJSONObject(0);
-            //weather.currentCondition[i] = new Weather.CurrentCondition();
-            weather.currentCondition[i].setWeatherId(getInt("id",cityObject));
-            weather.currentCondition[i].setDescr(getString("description",JSONWeather));
-            weather.currentCondition[i].setCondition(getString("main",JSONWeather));
-            weather.currentCondition[i].setIcon(getString("icon",JSONWeather));
+            for (int i = 0; i < 5; i++) {
+                JSONObject JSONList = listArray.getJSONObject(i);
+                JSONArray jArrWeather = JSONList.getJSONArray("weather");
+                JSONObject JSONWeather = jArrWeather.getJSONObject(0);
+                //weather.currentCondition[i] = new Weather.CurrentCondition();
+                weather.currentCondition[i].setWeatherId(getInt("id", cityObject));
+                weather.currentCondition[i].setDescr(getString("description", JSONWeather));
+                weather.currentCondition[i].setCondition(getString("main", JSONWeather));
+                weather.currentCondition[i].setIcon(getString("icon", JSONWeather));
 
-           JSONObject JSONTemperature = getObject("temp",JSONList);
-            weather.currentCondition[i].setPressure(getInt("pressure",JSONList));
-            weather.currentCondition[i].setHumidity(getInt("humidity",JSONList));
-            weather.temperature[i].setMaxTemp(getFloat("max",JSONTemperature));
-            weather.temperature[i].setMinTemp(getFloat("min",JSONTemperature));
-            weather.temperature[i].setTemp(""+Math.round(getFloat("day",JSONTemperature))+"/"+Math.round(getFloat("night",JSONTemperature)));
+                JSONObject JSONTemperature = getObject("temp", JSONList);
+                weather.currentCondition[i].setPressure(getInt("pressure", JSONList));
+                weather.currentCondition[i].setHumidity(getInt("humidity", JSONList));
+                weather.temperature[i].setMaxTemp(getFloat("max", JSONTemperature));
+                weather.temperature[i].setMinTemp(getFloat("min", JSONTemperature));
+                weather.temperature[i].setTemp("" + Math.round(getFloat("day", JSONTemperature)) + "/" + Math.round(getFloat("night", JSONTemperature)));
 
 
-            weather.wind[i].setSpeed(getFloat("speed",JSONList));
-            weather.wind[i].setDeg(getFloat("deg",JSONList));
+                weather.wind[i].setSpeed(getFloat("speed", JSONList));
+                weather.wind[i].setDeg(getFloat("deg", JSONList));
 
-            weather.clouds[i].setPerc(getInt("clouds",JSONList));
-        }
+                weather.clouds[i].setPerc(getInt("clouds", JSONList));
+            }
 
-        //JSONArray jArr = jObj.getJSONArray("weather");
+            //JSONArray jArr = jObj.getJSONArray("weather");
 
 //        JSONObject JSONWeather = jArr.getJSONObject(0);
 //        weather.currentCondition.setWeatherId(getInt("id",JSONWeather));
@@ -86,8 +83,12 @@ public class JSONWeatherParser {
 //        JSONObject cObj = getObject("clouds",jObj);
 //        weather.clouds.setPerc(getInt("all",cObj));
 //        Log.d("URL","Desc when set : "+weather.currentCondition.getDescr());
-        return weather;
-
+            return weather;
+        }
+        catch (NullPointerException ex){
+            ex.printStackTrace();
+            return null;
+        }
     }
 
     private static JSONObject getObject(String tagName, JSONObject jObj) throws JSONException {

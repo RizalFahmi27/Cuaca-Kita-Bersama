@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 
 public class WeatherHttpClient {
@@ -26,6 +27,7 @@ public class WeatherHttpClient {
             con.setRequestMethod("GET");
             con.setDoInput(true);
             con.setDoOutput(true);
+            con.setConnectTimeout(120000);
             con.connect();
 
             StringBuffer buffer = new StringBuffer();
@@ -39,6 +41,10 @@ public class WeatherHttpClient {
             return buffer.toString();
         }
 
+        catch (SocketTimeoutException ex){
+            ex.printStackTrace();
+        }
+
         catch (Throwable t){
             t.printStackTrace();
         }
@@ -48,6 +54,7 @@ public class WeatherHttpClient {
         }
         return null;
     }
+
 
     public byte[] getImage(String code){
         HttpURLConnection con = null;

@@ -1,6 +1,7 @@
 package com.android.exercise.cuacakita;
 
 import android.Manifest;
+import android.animation.ObjectAnimator;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -26,9 +27,12 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.View;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,11 +60,15 @@ public class MainActivity extends AppCompatActivity implements WeatherCallbacks 
     final Handler timeHandler = new Handler();
     private boolean isReadyToUpdate=false;
     TextView lastUpdateText, temperatureText, currentWeatherText, cityName, dateText;
-    ImageView updateIcon, weatherIcon;
+    ImageView weatherIcon;
+    ProgressBar progressBar;
     String[] days = new String[]{"Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"};
     public static int width;
     public static int height;
     public static Context mainContext;
+
+    Handler AnimationHandler;
+    Animation in;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +84,8 @@ public class MainActivity extends AppCompatActivity implements WeatherCallbacks 
 
         //Initialize View
         lastUpdateText = (TextView) findViewById(R.id.lastUpdate);
-        updateIcon = (ImageView) findViewById(R.id.updateButton);
+        lastUpdateText.setText("Ready to update");
+        progressBar = (ProgressBar) findViewById(R.id.updateButton);
         temperatureText = (TextView) findViewById(R.id.temperature);
         dateText = (TextView) findViewById(R.id.weatherDate);
         cityName = (TextView) findViewById(R.id.cityName);
@@ -90,9 +99,18 @@ public class MainActivity extends AppCompatActivity implements WeatherCallbacks 
 
         width = metrics.widthPixels;
         height = metrics.heightPixels;
-        
+
+        // Enable fade in and fade out animation on selected or current weather information text
+        initiateTextAnimation();
+
         update();
 
+    }
+
+    private void initiateTextAnimation() {
+        AnimationHandler = new Handler();
+        in = new AlphaAnimation(0.0f,1.0f);
+        in.setDuration(1000);
     }
 
     @Override
@@ -105,11 +123,15 @@ public class MainActivity extends AppCompatActivity implements WeatherCallbacks 
         int bmp = strValue.getInt("icon");
 
         currentWeatherText.setText(condition + "\n(" + desc + ")");
+        currentWeatherText.startAnimation(in);
         weatherIcon.setImageResource(bmp);
+        weatherIcon.startAnimation(in);
         Log.d("URL", "Temp get : " + temp);
         temperatureText.setText("" + temp + (char) 0x00B0);
+        temperatureText.startAnimation(in);
         String date = getDate(index);
         dateText.setText(date);
+        dateText.startAnimation(in);
 
     }
 
@@ -124,43 +146,58 @@ public class MainActivity extends AppCompatActivity implements WeatherCallbacks 
     }
 
     private void updateWeatherInfo(Weather weather){
-        if (weather.iconData[0] != null && weather.iconData[0].length > 0) {
-            Bitmap bmp = BitmapFactory.decodeByteArray(weather.iconData[0], 0, weather.iconData.length);
-            weatherIcon.setImageBitmap(bmp);
-            Log.d("URL", "This message will appear if icon is loaded successfully");
+        try {
+            if (weather.iconData[0] != null && weather.iconData[0].length > 0) {
+                Bitmap bmp = BitmapFactory.decodeByteArray(weather.iconData[0], 0, weather.iconData.length);
+                weatherIcon.setImageBitmap(bmp);
+                Log.d("URL", "This message will appear if icon is loaded successfully");
+            }
+
+            cityName.setText(weather.location.getCity() + "," + weather.location.getCountry());
+            currentWeatherText.setText(weather.currentCondition[0].getCondition() + "\n(" + weather.currentCondition[0].getDescr() + ")");
+            Log.d("URL", "Temp get : " + weather.temperature[0].getTemp());
+            temperatureText.setText("" + (weather.temperature[0].getTemp()) + (char) 0x00B0);
+
+            String icon = "i" + weather.currentCondition[0].getIcon();
+            int bmp = getResources().getIdentifier("drawable/" + icon, "drawable", getPackageName());
+
+            weatherIcon.setImageResource(bmp);
+
+
+            String dateNow = getDate(0);
+            dateText.setText(dateNow);
+
+            //Send message to Fragment
+            fg.onMessageFromActivityToFragment(weather);
         }
-
-        cityName.setText(weather.location.getCity() + "," + weather.location.getCountry());
-        currentWeatherText.setText(weather.currentCondition[0].getCondition() + "\n(" + weather.currentCondition[0].getDescr() + ")");
-        Log.d("URL", "Temp get : " + weather.temperature[0].getTemp());
-        temperatureText.setText("" + (weather.temperature[0].getTemp()) + (char) 0x00B0);
-
-        String icon = "i" + weather.currentCondition[0].getIcon();
-        int bmp = getResources().getIdentifier("drawable/"+icon,"drawable",getPackageName());
-
-        weatherIcon.setImageResource(bmp);
-
-
-        String dateNow = getDate(0);
-        dateText.setText(dateNow);
-
-        //Send message to Fragment
-        fg.onMessageFromActivityToFragment(weather);
+        catch (NullPointerException e){
+            Toast.makeText(this,"Gagal mengambil data, cek koneksi Anda",Toast.LENGTH_LONG).show();
+        }
+        progressBar.setVisibility(View.GONE);
+        lastUpdateText.setText("Tap here to Update");
+        lastUpdateText.setAnimation(in);
+        lastUpdateText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                update();
+            }
+        });
     }
 
     private void update(){
 
         checkLocationService();
-        rotationAnimation = AnimationUtils.loadAnimation(this,R.anim.rotate_animation);
-        updateIcon.setAnimation(rotationAnimation);
-
+        //ObjectAnimator objAnimator = ObjectAnimator.ofInt(progressBar,"progress",0,500)
+        progressBar.setVisibility(View.VISIBLE);
+        lastUpdateText.setText("Updating");
+        lastUpdateText.setAnimation(in);
+        lastUpdateText.setOnClickListener(null);
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
                 Toast.makeText(MainActivity.this,"Lat : "+location.getLatitude()+" Lang : "+location.getLongitude(),Toast.LENGTH_SHORT).show();
                 Log.d("Loc","Lat : "+location.getLatitude()+" Lang : "+location.getLongitude());
                 isReadyToUpdate = true;
-                rotationAnimation.cancel();
                 JSONWeatherTask task = new JSONWeatherTask();
                 task.execute(new String[]{String.valueOf(location.getLatitude()),String.valueOf(location.getLongitude())});
             }
@@ -272,9 +309,8 @@ public class MainActivity extends AppCompatActivity implements WeatherCallbacks 
             @Override
             public void run() {
                 locationManager.removeUpdates(locationListener);
-                Toast.makeText(MainActivity.this,"Gagal Memeperbarui Cuaca",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MainActivity.this,"Gagal Memeperbarui Cuaca",Toast.LENGTH_SHORT).show();
                 isReadyToUpdate = false;
-                rotationAnimation.cancel();
             }
         },120000);
         //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,0,0,locationListener);
@@ -307,17 +343,18 @@ public class MainActivity extends AppCompatActivity implements WeatherCallbacks 
             try{
 
                 weather = JSONWeatherParser.getWeather(data);
-
 //                for(int i=0;i<5;i++) {
 //                    weather.iconData[i] = ((new WeatherHttpClient()).getImage(weather.currentCondition[i].getIcon()));
 //                    Log.d("Iconnnn","icon "+i+" : "+weather.iconData[i].length);
 //                }
             }
             catch (JSONException e){
+        //        finishAndRemoveTask();
                 e.printStackTrace();
             }
             return weather;
         }
+
 
         @Override
         protected void onPostExecute(Weather weather) {
@@ -338,10 +375,9 @@ public class MainActivity extends AppCompatActivity implements WeatherCallbacks 
                 e.printStackTrace();
             }
 
-            updateWeatherInfo(weather);
+             updateWeatherInfo(weather);
 
         }
-
 
     }
 }

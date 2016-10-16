@@ -76,6 +76,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="15dp"
                     android:layout_alignParentRight="true">
                     <TextView
                         android:layout_width="wrap_content"
@@ -85,11 +86,15 @@
                         android:textSize="18sp"
                         android:paddingRight="15dp"
                         android:layout_gravity="center"/>
-                    <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                    <ProgressBar
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
                         android:id="@+id/updateButton"
-                        android:src="@drawable/ic_progress"/>
+                        android:max="500"
+                        android:progress="0"
+                        android:visibility="gone"
+                        android:progressDrawable="@drawable/circular"
+                        android:progressBackgroundTint="@color/progressBarColor"/>
                 </LinearLayout>
 
             </RelativeLayout>
