@@ -12,6 +12,7 @@ import android.app.Fragment;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -20,7 +21,10 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.andexert.library.RippleView;
+import com.android.exercise.cuacakita.custom_listener.LinearlayoutTouchListener;
 import com.android.exercise.cuacakita.weather_model.Weather;
 
 import java.util.Calendar;
@@ -37,13 +41,43 @@ public class FragmentForecast extends Fragment implements WeatherFragmentCallbac
     Calendar calendar;
     String[] days = new String[]{"Ming","Sen","Sel","Rabu","Kam","Jum","Sab"};
     int fragmentHeight;
-    
+
+
     @Override
     public void onMessageFromActivityToFragment(Weather weather) {
         this.weather = weather;
         calendar = Calendar.getInstance();
         calendar.setTime(calendar.getTime());
         ForecastAdapter adapter = new ForecastAdapter(mainActivity);
+        gridView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                float upY, downY = 0;
+                switch (event.getAction()){
+                    case MotionEvent.ACTION_DOWN: {
+                        downY = event.getY();
+                        return true;
+                    }
+                    case MotionEvent.ACTION_UP: {
+                        upY = event.getY();
+
+                        float deltaY = downY - upY;
+                        if(Math.abs(deltaY) > 90 ){
+                            if(deltaY > 0 ){
+                                onBottomToTop(deltaY);
+                                return true;
+                            }
+                        }
+                        else {
+                            Log.d("Swipe","Your distance : "+deltaY);
+                        }
+                        return false;
+                    }
+                }
+
+                return false;
+            }
+        });
         gridView.setAdapter(adapter);
     }
 
@@ -103,6 +137,21 @@ public class FragmentForecast extends Fragment implements WeatherFragmentCallbac
                 gridView.getChildAt(i).setBackgroundColor(Color.parseColor("#FFFFFFFF"));
         }
     }
+    private void onBottomToTop(float delta){
+        Toast.makeText(mainActivity,"Distance : "+delta,Toast.LENGTH_SHORT).show();
+
+        LinearLayout linearLayout = (LinearLayout) mainActivity.findViewById(R.id.fragmentWeather);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT,5f);
+        linearLayout.setLayoutParams(params);
+
+        LinearLayout linearLayout2 = (LinearLayout) mainActivity.findViewById(R.id.containerBigWeather);
+        LinearLayout.LayoutParams params2 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT,5f);
+        linearLayout2.setLayoutParams(params2);
+
+
+
+
+    }
 
 
     private class ForecastAdapter extends BaseAdapter{
@@ -133,6 +182,7 @@ public class FragmentForecast extends Fragment implements WeatherFragmentCallbac
             ImageView weatherIcon;
             TextView currentWeather;
             TextView temperature;
+            RippleView rippleView;
         }
 
         @Override
@@ -148,6 +198,7 @@ public class FragmentForecast extends Fragment implements WeatherFragmentCallbac
             holder.weatherIcon = (ImageView) view.findViewById(R.id.weatherIconFragment);
             holder.currentWeather = (TextView) view.findViewById(R.id.weatherFragment);
             holder.temperature = (TextView) view.findViewById(R.id.temperatureFragment);
+            holder.rippleView = (RippleView) view.findViewById(R.id.rippleForecast);
 
             //Update date and days according to updates action
             String day = "";
@@ -180,7 +231,7 @@ public class FragmentForecast extends Fragment implements WeatherFragmentCallbac
 
             //Set view onClickListener, those who selected is turned brighter or so....
 
-            view.setOnClickListener(new View.OnClickListener() {
+            holder.rippleView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     selectDay(position,bmp);
@@ -189,5 +240,6 @@ public class FragmentForecast extends Fragment implements WeatherFragmentCallbac
 
             return view;
         }
+
     }
 }

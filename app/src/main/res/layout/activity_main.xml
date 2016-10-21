@@ -12,42 +12,51 @@
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay">
 
-        <!--<android.support.v7.widget.Toolbar-->
-            <!--android:id="@+id/toolbar"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="?attr/actionBarSize"-->
-            <!--android:background="?attr/colorPrimary"-->
-            <!--app:popupTheme="@style/AppTheme.PopupOverlay" />-->
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </android.support.design.widget.AppBarLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-
         android:weightSum="10"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_marginTop="?attr/actionBarSize">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="7">
+            android:layout_weight="5"
+            android:id="@+id/containerBigWeather">
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingLeft="15dp"
-                android:paddingRight="15dp"
-                android:paddingTop="25dp">
+                android:layout_height="match_parent">
+                <com.android.exercise.cuacakita.PullRefreshContainer.PullRefreshContainerView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/pullRefresh">
+                </com.android.exercise.cuacakita.PullRefreshContainer.PullRefreshContainerView>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/cityName"
                     android:text="Your City Here"
-                    android:textSize="35sp"/>
+                    android:textSize="35sp"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="15dp"
+                    android:paddingTop="25dp"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="50sp"
                     android:text="36\u00B0"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="15dp"
                     android:id="@+id/temperature"
+                    android:paddingTop="10dp"
                     android:layout_below="@+id/cityName"/>
                 <ImageView
                     android:id="@+id/currentWeatherIcon"
@@ -55,18 +64,24 @@
                     android:layout_height="130dp"
                     android:layout_alignParentRight="true"
                     android:layout_above="@+id/currentWeather"
-                    android:src="@drawable/test2"/>
+                    android:src="@drawable/test2"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="15dp" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Friday, 19/18/2016"
                     android:textSize="18sp"
                     android:id="@+id/weatherDate"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="15dp"
                     android:layout_below="@+id/temperature"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/currentWeather"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="15dp"
                     android:text="Cloudy"
                     android:textSize="25sp"
                     android:layout_alignParentRight="true"
@@ -77,18 +92,21 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentBottom="true"
                     android:layout_marginBottom="15dp"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="15dp"
+                    android:paddingTop="25dp"
                     android:layout_alignParentRight="true">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Last Update"
                         android:id="@+id/lastUpdate"
-                        android:textSize="18sp"
+                        android:textSize="15sp"
                         android:paddingRight="15dp"
                         android:layout_gravity="center"/>
                     <ProgressBar
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
                         android:id="@+id/updateButton"
                         android:max="500"
                         android:progress="0"
@@ -100,13 +118,13 @@
             </RelativeLayout>
 
         </LinearLayout>
-        <FrameLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="3"
-            android:id="@+id/fragmentWeather">
-
-        </FrameLayout>
+            android:layout_weight="5"
+            android:id="@+id/fragmentWeather"
+            android:orientation="horizontal">
+        </LinearLayout>
     </LinearLayout>
 
 </android.support.design.widget.CoordinatorLayout>

@@ -22,12 +22,12 @@ public class WeatherHttpClient {
         InputStream is = null;
 
         try{
-            con = (HttpURLConnection) (new URL(BASE_URL+"lat="+latitute+"&lon="+longitude+"&units=metric&appid=c66ec1cf21401e09fa94c6fa4e7c32fe")).openConnection();
+            con = (HttpURLConnection) (new URL(BASE_URL+"lat="+"-7.275719"+"&lon="+"112.793920"+"&units=metric&appid="+MainActivity.mainContext.getString(R.string.appid))).openConnection();
             Log.d("URL",""+BASE_URL+"lat="+latitute+"&lon="+longitude+"&units=metric&appid=c66ec1cf21401e09fa94c6fa4e7c32fe");
             con.setRequestMethod("GET");
             con.setDoInput(true);
             con.setDoOutput(true);
-            con.setConnectTimeout(120000);
+            con.setConnectTimeout(30000);
             con.connect();
 
             StringBuffer buffer = new StringBuffer();
@@ -38,6 +38,9 @@ public class WeatherHttpClient {
                 buffer.append(line+"\r\n");
             is.close();
             con.disconnect();
+
+//            con = (HttpURLConnection)(new URL(BASE_URL+))
+
             return buffer.toString();
         }
 

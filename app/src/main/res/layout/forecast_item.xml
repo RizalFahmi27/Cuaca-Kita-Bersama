@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--android:background="#056107"-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:weightSum="10">
+    <com.andexert.library.RippleView
+        android:id="@+id/rippleForecast"
+        android:layout_width="match_parent"
+        android:layout_height="168dp"
+        app:rv_centered="true"
+        app:rv_color="#FF000000"
+        app:rv_rippleDuration="200">
         <LinearLayout
             android:id="@+id/layoutday1"
             android:layout_width="match_parent"
-            android:layout_height="180dp"
+            android:layout_height="match_parent"
             android:orientation="vertical"
             android:weightSum="10">
             <TextView
@@ -48,4 +57,5 @@
                 android:textAlignment="center"
                 android:textSize="18sp"/>
         </LinearLayout>
+    </com.andexert.library.RippleView>
     </LinearLayout>

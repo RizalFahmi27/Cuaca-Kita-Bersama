@@ -2,6 +2,7 @@ package com.android.exercise.cuacakita;
 
 import android.Manifest;
 import android.animation.ObjectAnimator;
+import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -27,15 +28,21 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.exercise.cuacakita.PullRefreshContainer.PullRefreshContainerView;
 import com.android.exercise.cuacakita.weather_model.Weather;
 
 import org.json.JSONException;
@@ -48,6 +55,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity implements WeatherCallbacks {
 
@@ -66,6 +75,8 @@ public class MainActivity extends AppCompatActivity implements WeatherCallbacks 
     public static int width;
     public static int height;
     public static Context mainContext;
+    PullRefreshContainerView mContainer;
+    LinearLayout mPullResfreshHeader;
 
     Handler AnimationHandler;
     Animation in;
@@ -74,13 +85,17 @@ public class MainActivity extends AppCompatActivity implements WeatherCallbacks 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-       // Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         fragmentTransaction = getFragmentManager().beginTransaction();
         fg = FragmentForecast.newInstance("weather");
         fragmentTransaction.replace(R.id.fragmentWeather,fg);
         fragmentTransaction.commit();
+
+        //Initialize Pull to Refresh
+       initializePullRefreshFunction();
+
 
         //Initialize View
         lastUpdateText = (TextView) findViewById(R.id.lastUpdate);
@@ -107,8 +122,45 @@ public class MainActivity extends AppCompatActivity implements WeatherCallbacks 
 
     }
 
+    private void initializePullRefreshFunction() {
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        mPullResfreshHeader  = (LinearLayout) inflater.inflate(R.layout.pull_refresh_container,null);
+        mPullResfreshHeader.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        mPullResfreshHeader.setGravity(Gravity.CENTER);
+        final TextView statusText = (TextView) mPullResfreshHeader.findViewById(R.id.pullText);
+        ProgressBar progressBarPull = (ProgressBar) mPullResfreshHeader.findViewById(R.id.pullProgressBar);
+        statusText.setText("Pull to Refresh....");
+        progressBarPull.setVisibility(View.VISIBLE);
+        mContainer = (PullRefreshContainerView) findViewById(R.id.pullRefresh);
+        mContainer.setRefreshHeader(mPullResfreshHeader);
+        mContainer.bringToFront();
+        mContainer.setOnChangeStateListener(new PullRefreshContainerView.OnChangeStateListener() {
+            @Override
+            public void onChangeState(PullRefreshContainerView container, int state) {
+                switch (state){
+                    case PullRefreshContainerView.STATE_IDLE:
+                    case PullRefreshContainerView.STATE_PULL:
+                        statusText.setText("Pull to update");
+                        break;
+                    case PullRefreshContainerView.STATE_RELEASE:
+                        statusText.setText("Release to update");
+                        break;
+                    case PullRefreshContainerView.STATE_LOADING:
+                        statusText.setText("Loading....");
+                        update();
+                        break;
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        update();
+    }
+
     private void initiateTextAnimation() {
-        AnimationHandler = new Handler();
         in = new AlphaAnimation(0.0f,1.0f);
         in.setDuration(1000);
     }
@@ -182,6 +234,7 @@ public class MainActivity extends AppCompatActivity implements WeatherCallbacks 
                 update();
             }
         });
+        mContainer.completeRefresh();
     }
 
     private void update(){
@@ -192,6 +245,8 @@ public class MainActivity extends AppCompatActivity implements WeatherCallbacks 
         lastUpdateText.setText("Updating");
         lastUpdateText.setAnimation(in);
         lastUpdateText.setOnClickListener(null);
+//        JSONWeatherTask task = new JSONWeatherTask();
+//        task.execute(new String[]{String.valueOf(67),String.valueOf(69)});
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
@@ -380,4 +435,7 @@ public class MainActivity extends AppCompatActivity implements WeatherCallbacks 
         }
 
     }
+
+
 }
+
