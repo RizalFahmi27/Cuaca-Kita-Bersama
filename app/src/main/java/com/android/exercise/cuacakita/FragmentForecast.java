@@ -1,22 +1,18 @@
 package com.android.exercise.cuacakita;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.app.Fragment;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -24,9 +20,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.andexert.library.RippleView;
-import com.android.exercise.cuacakita.custom_listener.LinearlayoutTouchListener;
-import com.android.exercise.cuacakita.weather_model.Weather;
+import com.android.exercise.cuacakita.Models.Response;
+import com.android.exercise.cuacakita.Models.Response.WeatherResponse.WeatherList;
+import com.android.exercise.cuacakita.Models.Weather;
 
+import com.android.exercise.cuacakita.Util.Util;
 import java.util.Calendar;
 
 /**
@@ -37,6 +35,7 @@ public class FragmentForecast extends Fragment implements WeatherFragmentCallbac
     private GridView gridView;
     MainActivity mainActivity;
     Weather weather;
+    Response response;
     Context context;
     Calendar calendar;
     String[] days = new String[]{"Ming","Sen","Sel","Rabu","Kam","Jum","Sab"};
@@ -48,40 +47,51 @@ public class FragmentForecast extends Fragment implements WeatherFragmentCallbac
         this.weather = weather;
         calendar = Calendar.getInstance();
         calendar.setTime(calendar.getTime());
-        ForecastAdapter adapter = new ForecastAdapter(mainActivity);
-        gridView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                float upY, downY = 0;
-                switch (event.getAction()){
-                    case MotionEvent.ACTION_DOWN: {
-                        downY = event.getY();
-                        return true;
-                    }
-                    case MotionEvent.ACTION_UP: {
-                        upY = event.getY();
 
-                        float deltaY = downY - upY;
-                        if(Math.abs(deltaY) > 90 ){
-                            if(deltaY > 0 ){
-                                onBottomToTop(deltaY);
-                                return true;
-                            }
-                        }
-                        else {
-                            Log.d("Swipe","Your distance : "+deltaY);
-                        }
-                        return false;
-                    }
-                }
-
-                return false;
-            }
-        });
-        gridView.setAdapter(adapter);
     }
 
-    @Override
+  @Override
+  public void onMessageFromActivityToFragment(Response response) {
+    this.response = response;
+    setUpAdapter();
+  }
+
+  private void setUpAdapter() {
+    ForecastAdapter adapter = new ForecastAdapter(mainActivity);
+    gridView.setOnTouchListener(new View.OnTouchListener() {
+      @Override
+      public boolean onTouch(View v, MotionEvent event) {
+        float upY, downY = 0;
+        switch (event.getAction()){
+          case MotionEvent.ACTION_DOWN: {
+            downY = event.getY();
+            return true;
+          }
+          case MotionEvent.ACTION_UP: {
+            upY = event.getY();
+
+            float deltaY = downY - upY;
+            if(Math.abs(deltaY) > 90 ){
+              if(deltaY > 0 ){
+                onBottomToTop(deltaY);
+                return true;
+              }
+            }
+            else {
+              Log.d("Swipe","Your distance : "+deltaY);
+            }
+            return false;
+          }
+        }
+
+        return false;
+      }
+    });
+    gridView.setAdapter(adapter);
+  }
+
+
+  @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try{
@@ -148,7 +158,8 @@ public class FragmentForecast extends Fragment implements WeatherFragmentCallbac
         LinearLayout.LayoutParams params2 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT,5f);
         linearLayout2.setLayoutParams(params2);
 
-
+        gridView.setOnTouchListener(null);
+        mainActivity.onMessageFromFragmentToChangeFragment(weather, MainActivity.FRAGMENT_HOURLY_FORECAST);
 
 
     }
@@ -164,12 +175,12 @@ public class FragmentForecast extends Fragment implements WeatherFragmentCallbac
 
         @Override
         public int getCount() {
-            return weather.currentCondition.length;
+            return response.weatherResponse.getWeatherList().size();
         }
 
         @Override
-        public Object getItem(int position) {
-            return weather.currentCondition[position];
+        public WeatherList getItem(int position) {
+            return response.weatherResponse.getWeatherList().get(position);
         }
 
         @Override
@@ -188,7 +199,8 @@ public class FragmentForecast extends Fragment implements WeatherFragmentCallbac
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
 
-
+            WeatherList.Weather weather = response.weatherResponse.getWeatherList().get(position).getWeather().get(0);
+            WeatherList weatherList = response.weatherResponse.getWeatherList().get(position);
             Holder holder = new Holder();
             View view = null;
             if(inflater!=null){
@@ -201,14 +213,7 @@ public class FragmentForecast extends Fragment implements WeatherFragmentCallbac
             holder.rippleView = (RippleView) view.findViewById(R.id.rippleForecast);
 
             //Update date and days according to updates action
-            String day = "";
-            try{
-                day = days[(calendar.get(Calendar.DAY_OF_WEEK)-1)+position];
-            }
-            catch (ArrayIndexOutOfBoundsException ex){
-                day = days[(calendar.get(Calendar.DAY_OF_WEEK)-1)+position-7];
-                ex.printStackTrace();
-            }
+            String day = Util.getDayOfWeek(response.timeResponse.getFormatted(),position);
 
 
             holder.day.setText(day);
@@ -216,14 +221,14 @@ public class FragmentForecast extends Fragment implements WeatherFragmentCallbac
             //Update weather condition, temperature, and icon in forecast gridview item
 
             //Check icon id and associate it with matched icon in drawable
-            String icon = "i" + weather.currentCondition[position].getIcon();
+            String icon = "i" + weather.getIcon();
             final int bmp = getResources().getIdentifier("drawable/"+icon,"drawable",mContext.getPackageName());
             Log.d("Cuaca","Id gambar : "+bmp);
             Log.d("Cuaca","Icon gambar : "+icon);
 
             holder.weatherIcon.setImageResource(bmp);
-            holder.currentWeather.setText(weather.currentCondition[position].getCondition());
-            holder.temperature.setText(weather.temperature[position].getTemp() + (char) 0x00B0);
+            holder.currentWeather.setText(weather.getMain());
+            holder.temperature.setText(String.valueOf(weatherList.getTemperature().getDay()) + (char) 0x00B0);
             //view.setLayoutParams(new GridView.LayoutParams(500,500));
             //linearLayout.setPadding(8,8,8,8);
             view.setMinimumWidth(MainActivity.width/5);

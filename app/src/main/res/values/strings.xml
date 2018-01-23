@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">Cuaca Kita</string>
     <string name="appid">c66ec1cf21401e09fa94c6fa4e7c32fe</string>
+
+
+    <!--Layout Hourly Forecast-->
+    <string name="hourly_forecast_hourly_text">Hourly Forecast</string>
+    <string name="hourly_forecast_wind_speed_text">Wind Speed</string>
 </resources>

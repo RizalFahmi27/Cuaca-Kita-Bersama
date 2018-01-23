@@ -3,4 +3,39 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:weightSum="10"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:id="@+id/hourlyLinearLayout">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/hourly_forecast_hourly_text"
+            android:textStyle="bold"
+            android:textSize="17sp"
+            android:paddingBottom="15dp"/>
+        <!--<com.github.mikephil.charting.charts.LineChart-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="0dp"-->
+            <!--android:layout_weight="5"-->
+            <!--android:id="@+id/hourlyChart">-->
+        <!--</com.github.mikephil.charting.charts.LineChart>-->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/hourly_forecast_wind_speed_text"
+            android:textStyle="bold"
+            android:textSize="17sp"
+            android:paddingBottom="15dp"/>
+        <!--<com.github.mikephil.charting.charts.LineChart-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="0dp"-->
+            <!--android:layout_weight="5"-->
+            <!--android:id="@+id/windSpeedChart">-->
+        <!--</com.github.mikephil.charting.charts.LineChart>-->
+    </LinearLayout>
+
 </LinearLayout>

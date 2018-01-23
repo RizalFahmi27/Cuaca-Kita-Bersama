@@ -1,4 +1,4 @@
-package com.android.exercise.cuacakita.weather_model;
+package com.android.exercise.cuacakita.Models;
 
 import java.io.Serializable;
 

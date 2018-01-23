@@ -1,11 +1,9 @@
 package com.android.exercise.cuacakita;
 
-import android.os.Looper;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.android.exercise.cuacakita.weather_model.Location;
-import com.android.exercise.cuacakita.weather_model.Weather;
+import com.android.exercise.cuacakita.Models.Location;
+import com.android.exercise.cuacakita.Models.Weather;
 
 import org.json.JSONArray;
 import org.json.JSONException;
